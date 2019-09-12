@@ -1,5 +1,6 @@
 from Practica1.getSNMP import consultaSNMP
 
+
 print("---------- PRACTICA 1 ----------")
 print("--------------------------------")
 
@@ -28,13 +29,51 @@ for agente in misAgentes:
     dir = a[2]
     print("Agente", num, "| Comunidad:", com, "Direccion:", dir)
 
+#Selección de agente
+print("Selecciona un agente para obtener más información")
+sa = int(input())
+
+if sa == 1:
+    com = misAgentes[0].split(',')
+    dir = misAgentes[0].split(',')
+    community = com[1]
+    myDirr = dir[2]
+elif sa == 2:
+    com = misAgentes[1].split(',')
+    dir = misAgentes[1].split(',')
+    community = com[1]
+    ip = dir[2]
+elif sa == 3:
+    com = misAgentes[2].split(',')
+    dir = misAgentes[2].split(',')
+    community = com[1]
+    ip = dir[2]
+elif sa ==4:
+    com = misAgentes[3].split(',')
+    dir = misAgentes[3].split(',')
+    community = com[1]
+    ip = dir[2]
+
 # El status del monitoreo del agente (up or down)
 print(" --> Status del monitoreo del agente: \n")
+print((community))
+print(myDirr)
+
+oid =  "1.3.6.1.2.1.1.1.0"
+consulta = consultaSNMP(community,myDirr,oid)
+
 try:
-    consulta = consultaSNMP("acarrillo", "localhost", "1.3.6.1.2.1.1.1.0")
+    consulta = consultaSNMP(community, myDirr, "1.3.6.1.2.1.1.1.0")
     print("Status del Agente: UP")
 except:
     print ("Status del Agente: DOWN")
+
+#while consulta.find("No") == -1 and consulta.find("noSuchName") == -1:
+    #print("system UP")
+    #break
+
+
+
 
 #Número de interfaces disponibles
 print(" --> Número de interfaces disponibles: \n")
@@ -43,7 +82,7 @@ res = ""
 
 while res != "No":
     oid = "1.3.6.1.2.1.2.2.1.2." + str(i)
-    res = consultaSNMP("acarrillo", "localhost", oid)
+    res = consultaSNMP(community,myDirr, oid)
     if(res == "No"):
         print("")
     else:
@@ -57,7 +96,7 @@ res = ""
 
 while res != "No":
     oid = "1.3.6.1.2.1.2.2.1.10." + str(i)
-    res = consultaSNMP("acarrillo", "localhost", oid)
+    res = consultaSNMP(community, myDirr, oid)
     if(res == "No"):
         print("")
     else:
@@ -120,28 +159,6 @@ def eliminarAgente():
         misAgentes.remove(misAgentes[e])
         ags = misAgentes[-1]
         a = ags.split(',')
-        #print(e)
-        #print(param)
-        #i = e
-
-        #for agnt in misAgentes[i:param]:
-            #print(agnt)
-            #od = agnt[0]
-            #old = str(od)
-            #nw = int(agnt[0]) - 1
-            #new = str(nw)
-            #print(old)
-            #print(new)
-            #misAgentes[i][0] = ""+new
-            #print(misAgentes[i][0])
-            #misAgentes[i][0].replace(old, new)
-            #print("I --- " + str(i))
-            #old = misAgentes[e][0]
-            #print("Old")
-            #print(old)
-            #new = str(e)
-            #misAgentes[e][0].replace(old,new)
-            #i+=1
         print(misAgentes)
 
         param = int(misAgentes[-1][0]) -1
