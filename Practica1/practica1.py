@@ -1,5 +1,17 @@
 from Practica1.getSNMP import consultaSNMP
-
+from Practica1.unicast import iniciarUnicast
+from Practica1.ipv4 import iniciarIPv4
+from Practica1.icmp import iniciarICMP
+from Practica1.segmentosRec import iniciarSegmentos
+from Practica1.datagramasUDP import iniciarUDP
+from Practica1.graphUnicast import graficarUnicast
+from Practica1.graphIPV4 import graficarIPv4
+from Practica1.graphICMP import graficarICMP
+from Practica1.graphSegRRD import graficarSegmentos
+from Practica1.graphRRD import graficarUDP
+from Practica1.generarPDF import generarReportePDF
+import threading
+import time
 
 print("---------- PRACTICA 1 ----------")
 print("--------------------------------")
@@ -12,99 +24,11 @@ for ag in archivo.readlines():
     #print(ag)
     misAgentes.append(ag)
     a = ag.split(',')
-    num = a [0]
-    com = a [1]
-    dir = a [2]
+    com = a [0]
+    dir = a [1]
     #print(agente)
 
 archivo.close()
-
-
-# Dispositivos que están en monitoreo
-print(" --> Dispositivos que estan en monitoreo: \n")
-for agente in misAgentes:
-    a = agente.split(',')
-    num = a[0]
-    com = a[1]
-    dir = a[2]
-    print("Agente", num, "| Comunidad:", com, "Direccion:", dir)
-
-#Selección de agente
-print("Selecciona un agente para obtener más información")
-sa = int(input())
-
-if sa == 1:
-    com = misAgentes[0].split(',')
-    dir = misAgentes[0].split(',')
-    community = com[1]
-    myDirr = dir[2]
-elif sa == 2:
-    com = misAgentes[1].split(',')
-    dir = misAgentes[1].split(',')
-    community = com[1]
-    ip = dir[2]
-elif sa == 3:
-    com = misAgentes[2].split(',')
-    dir = misAgentes[2].split(',')
-    community = com[1]
-    ip = dir[2]
-elif sa ==4:
-    com = misAgentes[3].split(',')
-    dir = misAgentes[3].split(',')
-    community = com[1]
-    ip = dir[2]
-
-# El status del monitoreo del agente (up or down)
-print(" --> Status del monitoreo del agente: \n")
-print((community))
-print(myDirr)
-
-oid =  "1.3.6.1.2.1.1.1.0"
-consulta = consultaSNMP(community,myDirr,oid)
-
-try:
-    consulta = consultaSNMP(community, myDirr, "1.3.6.1.2.1.1.1.0")
-    print("Status del Agente: UP")
-except:
-    print ("Status del Agente: DOWN")
-
-#while consulta.find("No") == -1 and consulta.find("noSuchName") == -1:
-    #print("system UP")
-    #break
-
-
-
-
-#Número de interfaces disponibles
-print(" --> Número de interfaces disponibles: \n")
-i = 1
-res = ""
-
-while res != "No":
-    oid = "1.3.6.1.2.1.2.2.1.2." + str(i)
-    res = consultaSNMP(community,myDirr, oid)
-    if(res == "No"):
-        print("")
-    else:
-        print(str(i)+" "+res)
-    i = i + 1
-
-#El status de actividad de cada puerto
-print(" --> Status de actividad de cada puerto: \n")
-i = 1
-res = ""
-
-while res != "No":
-    oid = "1.3.6.1.2.1.2.2.1.10." + str(i)
-    res = consultaSNMP(community, myDirr, oid)
-    if(res == "No"):
-        print("")
-    else:
-        if res != "0":
-            print(str(i)+" "+"activo")
-        else:
-            print(str(i)+" "+"inactivo")
-    i = i + 1
 
 #AgregarUsuario
 def agregarAgente():
@@ -178,11 +102,13 @@ def eliminarAgente():
         mostrarMenu()
 
 
+
 #Menu Usuario
 def mostrarMenu():
     print ("¡Buen día! Seleccione una opción")
     print("1. Agregar agente")
     print("2. Eliminar agente")
+    print("3. Continuar con la ejecucion")
     s = input()
 
 
@@ -190,11 +116,185 @@ def mostrarMenu():
         agregarAgente()
     elif s == '2':
         eliminarAgente()
-
-
-
+    elif s == '3':
+        print("Continuando ...")
 
 mostrarMenu()
+
+
+# Dispositivos que están en monitoreo
+
+nmr = 1
+
+print(" --> Dispositivos que estan en monitoreo: \n")
+for agente in misAgentes:
+    a = agente.split(',')
+    num = nmr
+    com = a[0]
+    dir = a[1]
+    print("Agente", num, "| Comunidad:", com, "Dirección:", dir)
+    nmr = nmr + 1
+
+#Selección de primer agente
+a1 = misAgentes[0].split(',')
+com1 = a1[0]
+dir1 = a1[1]
+
+#Selección de segundo agente
+a2 = misAgentes[1].split(',')
+com2 = a2[0]
+dir2 = a2[1]
+
+print(com1)
+print(dir1)
+
+print(com2)
+print(dir2)
+
+# El status del monitoreo del agente (up or down)
+# Primer agente
+print(" --> Status del monitoreo del agente: \n")
+print("Primer agente "+com1)
+
+ip1 = dir1[:-1]
+
+c = consultaSNMP(com1, ip1,"1.3.6.1.2.1.1.1.0")
+consulta = str(c)
+consulta = consulta[:2]
+
+if consulta == "No":
+    print("Estado del agente "+ com1 +" DOWN")
+else:
+    print("Estado del agente "+ com1 +" UP")
+
+
+#Segundo agente
+print("Segundo agente "+com2)
+
+ip2 = dir2[:-1]
+
+c2 = consultaSNMP(com2, ip2,"1.3.6.1.2.1.1.1.0")
+consulta2 = str(c2)
+consulta2 = consulta2[:2]
+
+if consulta2 == "No":
+    print("Estado del agente "+ com2 +" DOWN")
+else:
+    print("Estado del agente "+ com2 +" UP")
+
+
+#Número de interfaces disponibles
+print(" --> Número de interfaces disponibles: \n")
+i = 1
+res = ""
+
+
+print("--- Primer agente ---")
+while res != "No":
+    oid = "1.3.6.1.2.1.2.2.1.2." + str(i)
+    res = consultaSNMP(com1,ip1, oid)
+    if(res == "No"):
+        print("")
+    else:
+        print(str(i)+" "+res)
+    i = i + 1
+
+i = 1
+res = ""
+print("--- Segundo agente ---")
+while res != "No":
+    oid = "1.3.6.1.2.1.2.2.1.2." + str(i)
+    res = consultaSNMP(com2,ip2, oid)
+    if(res == "No"):
+        print("")
+    else:
+        print(str(i)+" "+res)
+    i = i + 1
+
+#El status de actividad de cada puerto
+print(" --> Status de actividad de cada puerto: \n")
+i = 1
+res = ""
+
+print("--- Primer agente ---")
+while res != "No":
+    oid = "1.3.6.1.2.1.2.2.1.10." + str(i)
+    res = consultaSNMP(com1, ip1, oid)
+    if(res == "No"):
+        print("")
+    else:
+        if res != "0":
+            print(str(i)+" "+"activo")
+        else:
+            print(str(i)+" "+"inactivo")
+    i = i + 1
+
+i = 1
+res = ""
+print("--- Segundo agente ---")
+while res != "No":
+    oid = "1.3.6.1.2.1.2.2.1.10." + str(i)
+    res = consultaSNMP(com2, ip2, oid)
+    if(res == "No"):
+        print("")
+    else:
+        if res != "0":
+            print(str(i)+" "+"activo")
+        else:
+            print(str(i)+" "+"inactivo")
+    i = i + 1
+
+
+
+#Obtener información de:
+#Agente 1
+def obtenerAgenteUno(comunidad, ip):
+    print("Empezando a recopilar informacion ...")
+    while 1:
+        # Paquetes UNICAST que ha recibido la interfaz
+        print("UNICAST")
+        iniciarUnicast(comunidad,ip)
+        # Paquetes recibidos a protocolos IPv4, incluyendo los que tienen errores
+        print("IPV4")
+        iniciarIPv4(comunidad, ip)
+        #Mensajes ICMP echo que ha enviado el agente
+        print("ICMP")
+        iniciarICMP(comunidad, ip)
+        #Segmentos recibidos, incluyendo los que se han recibido con errores
+        print("SEGMENTOS")
+        iniciarSegmentos(comunidad, ip)
+        #Datagramas entregados a usuarios UDP
+        print("UDP")
+        #iniciarUDP(comunidad, ip)
+        obtenerAgenteUno(comunidad, ip)
+
+
+def generarGrafica():
+    print("Generando graficas ...")
+    graficarUnicast()
+    graficarIPv4()
+    graficarICMP()
+    graficarSegmentos()
+    graficarUDP()
+    print("¡Graficas generadas!")
+
+
+#obtenerAgenteUno(com1,ip1)
+#print("¡Informacion recopilada exitosamente!")
+
+
+#Creacion de hilo para primer agente
+hilo1 = threading.Thread(name="AgenteUno", target=obtenerAgenteUno, args=(com1,ip1))
+hilo2 = threading.Thread(name="GenerarGraficas", target=generarGrafica)
+
+hilo1.start()
+time.sleep(60)
+hilo2.start()
+generarReportePDF(com1, ip1)
+
+#hilo2 = threading.Thread(name="AgenteDos", target=obtenerAgenteDos, args=(com2,ip2))
+
+
 
 
 
